@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
-        android:src="@drawable/ic_select_location_36dp"
+        android:src="@drawable/ic_marker"
         app:backgroundTint="@color/colorPrimary"
         app:fabSize="normal" />
 

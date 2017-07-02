@@ -3,4 +3,6 @@
     <string name="nearby_title">Nearby</string>
     <string name="favorite_title">Favorite</string>
     <string name="app_title">Places App</string>
+    <string name="common_selectLocation">Select Location</string>
+    <string name="map_addressLabel">Address</string>
 </resources>
