@@ -1,6 +1,6 @@
 package com.drevnitskaya.myplace.presenter.base;
 
-import com.drevnitskaya.myplace.contract.PlacesContract;
+import com.drevnitskaya.myplace.contract.BasePlacesContract;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.model.entities.WrapperPlace;
 
@@ -15,14 +15,13 @@ import io.realm.exceptions.RealmException;
  * Created by air on 01.07.17.
  */
 
-public abstract class BasePlacesPresenter implements PlacesContract.Presenter {
+public abstract class BasePlacesPresenter implements BasePlacesContract.Presenter {
 
-//    private PlacesContract.View view;
     protected Realm realm;
     private List<WrapperPlace> wrappedPlaces = new ArrayList<>();
     protected RealmResults<PlaceDetails> favoritePlaces;
 
-    public abstract PlacesContract.View getView();
+    public abstract BasePlacesContract.View getView();
 
     public void initRealm() {
         realm = Realm.getDefaultInstance();
@@ -30,6 +29,7 @@ public abstract class BasePlacesPresenter implements PlacesContract.Presenter {
 
     public void closeRealm() {
         try {
+            realm.removeAllChangeListeners();
             realm.close();
         } catch (RealmException ex) {
             ex.printStackTrace();

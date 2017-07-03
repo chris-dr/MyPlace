@@ -7,12 +7,12 @@ package com.drevnitskaya.myplace.contract;
 
 public interface FavoritePlacesContract {
 
-    interface View extends PlacesContract.View {
+    interface View extends BasePlacesContract.View {
 
         void notifyPlaceRemoved(int position);
     }
 
-    interface Presenter extends PlacesContract.Presenter {
+    interface Presenter extends BasePlacesContract.Presenter {
 
         void disableFavoritePlace(int position);
     }

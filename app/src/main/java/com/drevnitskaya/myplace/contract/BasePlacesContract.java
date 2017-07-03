@@ -12,12 +12,12 @@ import java.util.List;
  * Created by air on 01.07.17.
  */
 
-public class PlacesContract {
+public class BasePlacesContract {
 
-    public interface View extends BaseView<PlacesContract.Presenter> {
+    public interface View extends BaseView<BasePlacesContract.Presenter> {
         void notifyPlacesChanged();
 
-        void setupPlacesRecycler(List<WrapperPlace> places);
+        void setupPlacesRecycler();
     }
 
     public interface Presenter extends BasePresenter {

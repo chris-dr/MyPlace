@@ -21,8 +21,8 @@ public class PlaceDetails extends RealmObject {
     @SerializedName("formatted_address")
     String address;
 
-    @SerializedName("website")
-    String website;
+    @SerializedName("url")
+    String urlLink;
 
     public PlaceDetails() {
     }
@@ -43,19 +43,15 @@ public class PlaceDetails extends RealmObject {
         this.name = name;
     }
 
-    public String getWebsite() {
-        return website;
+    public String getUrlLink() {
+        return urlLink;
     }
 
-    public void setWebsite(String website) {
-        this.website = website;
+    public void setUrlLink(String urlLink) {
+        this.urlLink = urlLink;
     }
 
     public String getAddress() {
         return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 }

@@ -48,6 +48,15 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.NearbyPlac
                 }
             }
         });
+        vh.textPlaceUrlLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = vh.getAdapterPosition();
+                if (position != NO_POSITION) {
+                    listener.get().onUrlLinkClicked(position);
+                }
+            }
+        });
         return vh;
     }
 
@@ -58,16 +67,16 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.NearbyPlac
         holder.textPlaceTitle.setText(details.getName());
         String address = details.getAddress();
         if (!TextUtils.isEmpty(address)) {
-            holder.textPlaceAddress.setVisibility(View.GONE);
+            holder.textPlaceAddress.setVisibility(View.VISIBLE);
             holder.textPlaceAddress.setText(address);
         } else {
             holder.textPlaceAddress.setVisibility(View.GONE);
         }
-        String website = details.getWebsite();
-        if (!TextUtils.isEmpty(website)) {
+        String urlLink = details.getUrlLink();
+        if (!TextUtils.isEmpty(urlLink)) {
             holder.textPlaceUrlLink.setVisibility(View.VISIBLE);
             holder.textPlaceUrlLink.setMovementMethod(LinkMovementMethod.getInstance());
-            holder.textPlaceUrlLink.setText(website);
+            holder.textPlaceUrlLink.setText(urlLink);
         } else {
             holder.textPlaceUrlLink.setVisibility(View.GONE);
         }
@@ -103,5 +112,7 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.NearbyPlac
 
     public interface ActionListener {
         void onFavoriteClicked(int position);
+
+        void onUrlLinkClicked(int position);
     }
 }

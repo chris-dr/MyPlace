@@ -5,4 +5,7 @@
     <string name="app_title">Places App</string>
     <string name="common_selectLocation">Select Location</string>
     <string name="map_addressLabel">Address</string>
+    <string name="progressDialog_wait">Please wait</string>
+    <string name="alertDialog_titleError">Error</string>
+    <string name="alertDialog_errorMsg">Please check your Network connection</string>
 </resources>

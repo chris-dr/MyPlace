@@ -26,7 +26,6 @@ import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by air on 02.07.17.
@@ -46,63 +45,67 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
 
 
     public void nearbyPlacesRequest(String latitude, String longitude) {
-        view.showProgressDialog();
-        subscription = PlacesApiRequest.getInstance().getApi().getNearestPlaces(TextUtils.concat(latitude, ", ",
-                longitude).toString(), RADIUS_PLACES_SEARCHING_METRES, view.getApiKey())
-                .filter(new Func1<PlaceResponse, Boolean>() {
-                    @Override
-                    public Boolean call(PlaceResponse searchResponse) {
-                        return TextUtils.equals(searchResponse.getStatus(), PlaceResponse.STATUS_PLACES_RECEIVED);
-                    }
-                })
-                .flatMap(new Func1<PlaceResponse, Observable<Place>>() {
-                    @Override
-                    public Observable<Place> call(PlaceResponse searchResponse) {
-                        return Observable.from(searchResponse.getResults());
-                    }
-                })
-                .flatMap(new Func1<Place, Observable<PlaceDetailsResponse>>() {
-                    @Override
-                    public Observable<PlaceDetailsResponse> call(Place place) {
-                        return PlacesApiRequest.getInstance().getApi().getPlaceDetails(place.getPlaceId(), view.getApiKey());
-                    }
-                })
-                .filter(new Func1<PlaceDetailsResponse, Boolean>() {
-                    @Override
-                    public Boolean call(PlaceDetailsResponse detailsResponse) {
-                        return detailsResponse != null && detailsResponse.getResult() != null;
-                    }
-                })
-                .flatMap(new Func1<PlaceDetailsResponse, Observable<PlaceDetails>>() {
-                    @Override
-                    public Observable<PlaceDetails> call(PlaceDetailsResponse detailsResponse) {
-                        PlaceDetails placeDetails = detailsResponse.getResult();
-                        return Observable.just(placeDetails);
-                    }
-                })
-                .toList()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<PlaceDetails>>() {
-                    @Override
-                    public void call(List<PlaceDetails> details) {
-                        view.dismissProgressDialog();
-                        setPlaces(details);
-                        wrapPlaces(details);
-                        view.notifyPlacesChanged();
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
-                        view.dismissProgressDialog();
-                    }
-                }, new Action0() {
-                    @Override
-                    public void call() {
-                        Log.d(getClass().getSimpleName(), "Completed!");
-                    }
-                });
+        if (view.isNetworkConnEnabled()) {
+            view.showProgressDialog();
+            subscription = PlacesApiRequest.getInstance().getApi().getNearestPlaces(TextUtils.concat(latitude, ", ",
+                    longitude).toString(), RADIUS_PLACES_SEARCHING_METRES, view.getApiKey())
+                    .filter(new Func1<PlaceResponse, Boolean>() {
+                        @Override
+                        public Boolean call(PlaceResponse searchResponse) {
+                            return TextUtils.equals(searchResponse.getStatus(), PlaceResponse.STATUS_PLACES_RECEIVED);
+                        }
+                    })
+                    .flatMap(new Func1<PlaceResponse, Observable<Place>>() {
+                        @Override
+                        public Observable<Place> call(PlaceResponse searchResponse) {
+                            return Observable.from(searchResponse.getResults());
+                        }
+                    })
+                    .flatMap(new Func1<Place, Observable<PlaceDetailsResponse>>() {
+                        @Override
+                        public Observable<PlaceDetailsResponse> call(Place place) {
+                            return PlacesApiRequest.getInstance().getApi().getPlaceDetails(place.getPlaceId(), view.getApiKey());
+                        }
+                    })
+                    .filter(new Func1<PlaceDetailsResponse, Boolean>() {
+                        @Override
+                        public Boolean call(PlaceDetailsResponse detailsResponse) {
+                            return detailsResponse != null && detailsResponse.getResult() != null;
+                        }
+                    })
+                    .flatMap(new Func1<PlaceDetailsResponse, Observable<PlaceDetails>>() {
+                        @Override
+                        public Observable<PlaceDetails> call(PlaceDetailsResponse detailsResponse) {
+                            PlaceDetails placeDetails = detailsResponse.getResult();
+                            return Observable.just(placeDetails);
+                        }
+                    })
+                    .toList()
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Action1<List<PlaceDetails>>() {
+                        @Override
+                        public void call(List<PlaceDetails> details) {
+                            view.dismissProgressDialog();
+                            setPlaces(details);
+                            wrapPlaces(details);
+                            view.notifyPlacesChanged();
+                        }
+                    }, new Action1<Throwable>() {
+                        @Override
+                        public void call(Throwable throwable) {
+                            throwable.printStackTrace();
+                            view.dismissProgressDialog();
+                        }
+                    }, new Action0() {
+                        @Override
+                        public void call() {
+                            Log.d(getClass().getSimpleName(), "Completed!");
+                        }
+                    });
+        } else {
+            view.showNetworkConnError();
+        }
     }
 
     private void setPlaces(List<PlaceDetails> places) {

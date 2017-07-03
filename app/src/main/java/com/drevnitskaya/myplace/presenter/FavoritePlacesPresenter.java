@@ -29,22 +29,26 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
     public void favoritePlacesQuery() {
         favoritePlaces = realm.where(PlaceDetails.class)
                 .findAll();
-        favoritePlaces.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<PlaceDetails>>() {
-            @Override
-            public void onChange(RealmResults<PlaceDetails> places, OrderedCollectionChangeSet changeSet) {
-                OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
-                if (insertions.length >= 1) {
-                    wrapPlaces(favoritePlaces);
-                    getView().notifyPlacesChanged();
-                }
-            }
-        });
-        view.setupPlacesRecycler(wrapPlaces(favoritePlaces));
+        favoritePlaces.addChangeListener(changeListener);
+        wrapPlaces(favoritePlaces);
+        view.setupPlacesRecycler();
     }
+
+    private OrderedRealmCollectionChangeListener<RealmResults<PlaceDetails>> changeListener = new OrderedRealmCollectionChangeListener<RealmResults<PlaceDetails>>() {
+        @Override
+        public void onChange(RealmResults<PlaceDetails> places, OrderedCollectionChangeSet changeSet) {
+            OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
+            if (insertions.length >= 1) {
+                wrapPlaces(favoritePlaces);
+                getView().notifyPlacesChanged();
+            }
+        }
+    };
 
     @Override
     public void disableFavoritePlace(final int position) {
         final PlaceDetails place = getWrappedPlaces().get(position).getPlaceDetails();
+        favoritePlaces.removeChangeListener(changeListener);
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -58,5 +62,6 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
                 }
             }
         });
+        favoritePlaces.addChangeListener(changeListener);
     }
 }

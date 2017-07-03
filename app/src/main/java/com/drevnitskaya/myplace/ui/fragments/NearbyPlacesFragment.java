@@ -1,20 +1,22 @@
 package com.drevnitskaya.myplace.ui.fragments;
 
 import android.app.ProgressDialog;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contract.NearbyPlacesContract;
-import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.presenter.NearbyPlacesPresenter;
 import com.drevnitskaya.myplace.ui.fragments.base.BasePlacesFragment;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
+import static android.content.Context.CONNECTIVITY_SERVICE;
 
 
 /**
@@ -26,9 +28,7 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
     private ProgressDialog dialogProgress;
 
     public static NearbyPlacesFragment newInstance() {
-        Bundle args = new Bundle();
         NearbyPlacesFragment fragment = new NearbyPlacesFragment();
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -42,8 +42,7 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getPresenter().favoritePlacesQuery();
-        //todo быдлокод!
-        setupPlacesRecycler(getPresenter().wrapPlaces(new ArrayList<PlaceDetails>()));
+        setupPlacesRecycler();
     }
 
     @Override
@@ -55,6 +54,12 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
     public void onStop() {
         super.onStop();
         dismissProgressDialog();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        getPresenter().unsubscribe();
     }
 
     @Override
@@ -83,7 +88,7 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
 
     public void showProgressDialog() {
         if (dialogProgress == null) {
-            dialogProgress = ProgressDialog.show(getContext(), "", "Please wait", true);
+            dialogProgress = ProgressDialog.show(getContext(), "", getString(R.string.progressDialog_wait), true);
         }
     }
 
@@ -96,5 +101,22 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
     @Override
     public void notifyPlacesRangeChanged(int start, int count) {
         adapterPlaces.notifyItemRangeChanged(start, count);
+    }
+
+    @Override
+    public boolean isNetworkConnEnabled() {
+        ConnectivityManager manager = (ConnectivityManager) getContext().getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = manager.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
+
+    @Override
+    public void showNetworkConnError() {
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle(R.string.alertDialog_titleError)
+                .setMessage(R.string.alertDialog_errorMsg)
+                .create();
+        dialog.show();
+
     }
 }

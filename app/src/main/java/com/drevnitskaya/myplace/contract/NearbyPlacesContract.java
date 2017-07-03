@@ -6,7 +6,7 @@ package com.drevnitskaya.myplace.contract;
 
 public class NearbyPlacesContract {
 
-    public interface View extends PlacesContract.View {
+    public interface View extends BasePlacesContract.View {
 
         String getApiKey();
 
@@ -17,12 +17,19 @@ public class NearbyPlacesContract {
         void dismissProgressDialog();
 
         void notifyPlacesRangeChanged(int start, int count);
+
+        boolean isNetworkConnEnabled();
+
+        void showNetworkConnError();
+
     }
 
-    public interface Presenter extends PlacesContract.Presenter {
+    public interface Presenter extends BasePlacesContract.Presenter {
 
         void nearbyPlacesRequest(String latitude, String longitude);
 
         void onFavoritePlaceClicked(int position);
+
+        void unsubscribe();
     }
 }
