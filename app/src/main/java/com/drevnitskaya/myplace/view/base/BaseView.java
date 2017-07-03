@@ -6,5 +6,5 @@ package com.drevnitskaya.myplace.view.base;
 
 public interface BaseView<T> {
 
-    void setPresenter(T presenter);
+//    void setPresenter(T presenter);
 }

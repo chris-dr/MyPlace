@@ -5,25 +5,38 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Camera;
 import android.location.Address;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.drevnitskaya.myplace.R;
+import com.drevnitskaya.myplace.contract.MapContract;
+import com.drevnitskaya.myplace.presenter.MapPresenter;
 import com.drevnitskaya.myplace.service.AddressDecoderService;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 
 import butterknife.BindView;
@@ -35,9 +48,11 @@ import butterknife.OnClick;
  * Created by air on 01.07.17.
  */
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, MapContract.View {
 
     public static final String EXTRA_SELECTED_LOCATION = "com.drevnitskaya.myplace.selected_location";
+    private static final int REQUEST_CODE_LAST_KNOWN_LOCATION_ACCESS = 100;
+    private static final int REQUEST_CODE_CURRENT_DISPLAYING_LOCATION_ACCESS = 200;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -46,6 +61,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @BindView(R.id.layoutPinContainer)
     ViewGroup layoutPinContainer;
 
+    private MapContract.Presenter presenter;
     private ActionBar actionBar;
     private GoogleMap map;
     private ResultReceiver receiver;
@@ -62,15 +78,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         ButterKnife.bind(this);
+        presenter = new MapPresenter(this);
+
+        setupLastKnownLocation();
 
         setSupportActionBar(toolbar);
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         setTitle(R.string.common_selectLocation);
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragmentMap);
-        mapFragment.getMapAsync(this);
 
         receiver = new AddressResultReceiver(new Handler());
     }
@@ -97,6 +112,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         finish();
     }
 
+    public void setupLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_LAST_KNOWN_LOCATION_ACCESS);
+            return;
+        }
+
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(this);
+        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this);
+        presenter.connectGoogleApiClient(result, builder);
+
+    }
+
     @OnClick(R.id.layoutAddressCont)
     protected void onLocationSelected() {
         if (selectedLocation != null) {
@@ -115,19 +146,67 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
-        selectedLocation = map.getCameraPosition().target;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            map.setMyLocationEnabled(true);
-        }
+        allowShowCurrentLocation();
+        LatLngBounds b = map.getProjection().getVisibleRegion().latLngBounds;
+        selectedLocation = b.getCenter();
+
         map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
-                selectedLocation = map.getCameraPosition().target;
+                LatLngBounds b = map.getProjection().getVisibleRegion().latLngBounds;
+                selectedLocation = b.getCenter();
                 startAddressDecoderService(selectedLocation);
             }
         });
 
+    }
+
+    private void allowShowCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_CURRENT_DISPLAYING_LOCATION_ACCESS);
+            return;
+        }
+        map.setMyLocationEnabled(true);
+        Location location = presenter.getCurrentLocation();
+        if (location != null) {
+//            map.setLatLngBoundsForCameraTarget(new LatLngBounds(new LatLng(location.getLatitude(),
+//                    location.getLongitude()), new LatLng(location.getLatitude(),
+//                    location.getLongitude())));
+//            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
+//                    location.getLongitude()), 8f);
+//            map.animateCamera(cameraUpdate);
+
+            CameraPosition position = CameraPosition.builder()
+                    .target(new LatLng(location.getLatitude(),
+                            location.getLongitude()))
+                    .zoom(8f)
+                    .build();
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        switch (requestCode) {
+            case REQUEST_CODE_CURRENT_DISPLAYING_LOCATION_ACCESS:
+                allowShowCurrentLocation();
+                break;
+            case REQUEST_CODE_LAST_KNOWN_LOCATION_ACCESS:
+                setupLastKnownLocation();
+            default:
+                break;
+
+        }
     }
 
     protected void startAddressDecoderService(LatLng location) {
@@ -162,6 +241,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     break;
             }
         }
+    }
+
+    public boolean isGPSEnabled() {
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    @Override
+    public void loadMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragmentMap);
+        mapFragment.getMapAsync(this);
+
     }
 
 }

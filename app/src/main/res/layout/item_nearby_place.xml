@@ -2,37 +2,57 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp">
+    android:padding="15dp">
 
     <ImageView
         android:id="@+id/imagePlaceIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_select_location_36dp" />
+        android:layout_marginRight="18dp"
+        android:src="@drawable/ic_item_place_36dp" />
 
     <TextView
         android:id="@+id/textPlaceTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="30dp"
         android:layout_toRightOf="@+id/imagePlaceIcon"
-        android:maxLines="2" />
+        android:maxLines="2"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textPlaceAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textPlaceTitle"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="3dp"
+        android:layout_toRightOf="@+id/imagePlaceIcon"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/textPlaceUrlLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textPlaceTitle"
+        android:layout_below="@+id/textPlaceAddress"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="3dp"
         android:layout_toRightOf="@+id/imagePlaceIcon"
-        android:maxLines="1" />
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textSize="14sp" />
 
-    <ImageButton
+    <TextView
         android:id="@+id/imageButtonFavorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_favorite" />
+        android:background="@drawable/bg_favorite_star" />
 
 </RelativeLayout>

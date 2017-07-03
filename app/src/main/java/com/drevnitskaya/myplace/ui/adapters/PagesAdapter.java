@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.drevnitskaya.myplace.ui.fragments.NearbyPlacesFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,8 @@ import java.util.List;
  */
 
 public class PagesAdapter extends FragmentPagerAdapter {
+
+    private static final int IDX_PAGE_NEARBY_PLACES = 0;
 
     private List<Fragment> items = new ArrayList<>();
     private List<String> titles = new ArrayList<>();
@@ -39,5 +43,9 @@ public class PagesAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return titles.get(position);
+    }
+
+    public NearbyPlacesFragment getNearbyPlaceFragment() {
+        return (NearbyPlacesFragment) items.get(IDX_PAGE_NEARBY_PLACES);
     }
 }

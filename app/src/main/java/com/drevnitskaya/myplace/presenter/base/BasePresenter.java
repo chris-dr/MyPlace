@@ -5,4 +5,9 @@ package com.drevnitskaya.myplace.presenter.base;
  */
 
 public interface BasePresenter {
+
+    void initRealm();
+
+    void closeRealm();
+
 }

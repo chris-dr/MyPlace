@@ -37,7 +37,6 @@
         android:layout_margin="20dp"
         android:src="@drawable/ic_marker"
         app:backgroundTint="@color/colorPrimary"
-        app:fabSize="normal" />
-
-
+        app:fabSize="normal"
+        app:layout_behavior="com.drevnitskaya.myplace.ui.custom.ScrollAwareFABBehavior" />
 </android.support.design.widget.CoordinatorLayout>

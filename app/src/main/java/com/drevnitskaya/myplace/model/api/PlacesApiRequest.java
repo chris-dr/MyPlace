@@ -23,7 +23,7 @@ public class PlacesApiRequest {
     private static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
 
     private static PlacesApiRequest kooperApiRequest;
-    private PlcesApiInterface api;
+    private PlacesApiInterface api;
 
     public static PlacesApiRequest getInstance() {
         if (kooperApiRequest == null) {
@@ -34,11 +34,11 @@ public class PlacesApiRequest {
 
     private PlacesApiRequest() {
         Retrofit retrofit = getRetrofit();
-        api = retrofit.create(PlcesApiInterface.class);
+        api = retrofit.create(PlacesApiInterface.class);
     }
 
 
-    public PlcesApiInterface getApi() {
+    public PlacesApiInterface getApi() {
         return api;
     }
 

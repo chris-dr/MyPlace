@@ -1,75 +1,100 @@
 package com.drevnitskaya.myplace.ui.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contract.NearbyPlacesContract;
-import com.drevnitskaya.myplace.model.entities.Place;
+import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.presenter.NearbyPlacesPresenter;
-import com.drevnitskaya.myplace.ui.adapters.NearbyPlacesAdapter;
+import com.drevnitskaya.myplace.ui.fragments.base.BasePlacesFragment;
+import com.google.android.gms.maps.model.LatLng;
 
-import java.util.List;
+import java.util.ArrayList;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
- * Created by air on 01.07.17.
+ * Created by air on 02.07.17.
  */
 
-public class NearbyPlacesFragment extends Fragment implements NearbyPlacesContract.View {
-
-    @BindView(R.id.recyclerView)
-    RecyclerView recyclerView;
-
+public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPlacesContract.View {
     private NearbyPlacesContract.Presenter presenter;
-    private NearbyPlacesAdapter adapterNearbyPlaces;
+    private ProgressDialog dialogProgress;
 
     public static NearbyPlacesFragment newInstance() {
-
         Bundle args = new Bundle();
-
         NearbyPlacesFragment fragment = new NearbyPlacesFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        presenter = new NearbyPlacesPresenter(this);
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_nearby_places, container, false);
-        ButterKnife.bind(this, rootView);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_places_list, container, false);
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getPresenter().favoritePlacesQuery();
+        //todo быдлокод!
+        setupPlacesRecycler(getPresenter().wrapPlaces(new ArrayList<PlaceDetails>()));
     }
 
     @Override
-    public void setPresenter(NearbyPlacesContract.Presenter presenter) {
-        this.presenter = presenter;
+    public NearbyPlacesContract.Presenter getPresenter() {
+        return presenter;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        dismissProgressDialog();
+    }
 
-    public void setupPlacesList(List<Place> places) {
-        adapterNearbyPlaces = new NearbyPlacesAdapter(places);
-        recyclerView.setAdapter(adapterNearbyPlaces);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setHasFixedSize(true);
+    @Override
+    protected void createPresenter() {
+        presenter = new NearbyPlacesPresenter(this);
+    }
+
+    @Override
+    public String getApiKey() {
+        return getString(R.string.apiKey_googleMaps);
+    }
+
+    @Override
+    public void notifyPlaceItemChanged(int position) {
+        adapterPlaces.notifyItemChanged(position);
+    }
+
+    public void getNearbyPlaces(LatLng selectedLoc) {
+        getPresenter().nearbyPlacesRequest(String.valueOf(selectedLoc.latitude), String.valueOf(selectedLoc.longitude));
+    }
+
+    @Override
+    protected void manageOnFavoriteClick(int position) {
+        getPresenter().onFavoritePlaceClicked(position);
+    }
+
+    public void showProgressDialog() {
+        if (dialogProgress == null) {
+            dialogProgress = ProgressDialog.show(getContext(), "", "Please wait", true);
+        }
+    }
+
+    public void dismissProgressDialog() {
+        if (dialogProgress != null && dialogProgress.isShowing()) {
+            dialogProgress.dismiss();
+        }
+    }
+
+    @Override
+    public void notifyPlacesRangeChanged(int start, int count) {
+        adapterPlaces.notifyItemRangeChanged(start, count);
     }
 }
