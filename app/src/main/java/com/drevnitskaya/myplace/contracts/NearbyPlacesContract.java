@@ -1,4 +1,4 @@
-package com.drevnitskaya.myplace.contract;
+package com.drevnitskaya.myplace.contracts;
 
 /**
  * Created by air on 02.07.17.
@@ -21,6 +21,10 @@ public class NearbyPlacesContract {
         boolean isNetworkConnEnabled();
 
         void showNetworkConnError();
+
+        void startGeofenceMonitoring();
+
+        void sendAddGeofenceBroadcast(String placeId, double latitude, double longitude);
 
     }
 

@@ -1,4 +1,4 @@
-package com.drevnitskaya.myplace.presenter;
+package com.drevnitskaya.myplace.presenters;
 
 import android.location.Location;
 import android.os.Bundle;
@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.drevnitskaya.myplace.contract.MapContract;
+import com.drevnitskaya.myplace.contracts.MapContract;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;

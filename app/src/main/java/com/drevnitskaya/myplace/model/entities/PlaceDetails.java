@@ -24,14 +24,18 @@ public class PlaceDetails extends RealmObject {
     @SerializedName("url")
     String urlLink;
 
+    @SerializedName("geometry")
+    Geometry geometry;
+
+
     public PlaceDetails() {
     }
 
-    public String getId() {
+    public String getPlaceId() {
         return placeId;
     }
 
-    public void setId(String placeId) {
+    public void setPlaceId(String placeId) {
         this.placeId = placeId;
     }
 
@@ -53,5 +57,9 @@ public class PlaceDetails extends RealmObject {
 
     public String getAddress() {
         return address;
+    }
+
+    public Geometry getGeometry() {
+        return geometry;
     }
 }

@@ -1,4 +1,4 @@
-package com.drevnitskaya.myplace.contract;
+package com.drevnitskaya.myplace.contracts;
 
 
 /**
@@ -10,6 +10,7 @@ public interface FavoritePlacesContract {
     interface View extends BasePlacesContract.View {
 
         void notifyPlaceRemoved(int position);
+
     }
 
     interface Presenter extends BasePlacesContract.Presenter {

@@ -1,6 +1,6 @@
-package com.drevnitskaya.myplace.contract;
+package com.drevnitskaya.myplace.contracts;
 
-import com.drevnitskaya.myplace.presenter.base.BasePresenter;
+import com.drevnitskaya.myplace.presenters.base.BasePresenter;
 import com.drevnitskaya.myplace.view.base.BaseView;
 
 /**

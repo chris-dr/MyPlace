@@ -10,12 +10,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.drevnitskaya.myplace.R;
-import com.drevnitskaya.myplace.contract.BasePlacesContract;
+import com.drevnitskaya.myplace.contracts.BasePlacesContract;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.ui.adapters.PlacesAdapter;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.ACTION_REMOVE_MONITORING_GEOFENCE;
+import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.EXTRA_PLACE_ID;
 
 /**
  * Created by air on 01.07.17.
@@ -82,5 +85,12 @@ public abstract class BasePlacesFragment extends Fragment implements BasePlacesC
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
         intent.setPackage("com.google.android.apps.maps");
         startActivity(intent);
+    }
+
+    public void sendRemoveGeofenceBroadcast(String placeId) {
+        Intent intent = new Intent();
+        intent.setAction(ACTION_REMOVE_MONITORING_GEOFENCE);
+        intent.putExtra(EXTRA_PLACE_ID, placeId);
+        getContext().sendBroadcast(intent);
     }
 }

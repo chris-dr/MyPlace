@@ -1,16 +1,16 @@
-package com.drevnitskaya.myplace.presenter;
+package com.drevnitskaya.myplace.presenters;
 
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.drevnitskaya.myplace.contract.NearbyPlacesContract;
+import com.drevnitskaya.myplace.contracts.NearbyPlacesContract;
 import com.drevnitskaya.myplace.model.api.PlacesApiRequest;
+import com.drevnitskaya.myplace.model.entities.Location;
 import com.drevnitskaya.myplace.model.entities.Place;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.model.entities.PlaceDetailsResponse;
 import com.drevnitskaya.myplace.model.entities.PlaceResponse;
 import com.drevnitskaya.myplace.model.entities.WrapperPlace;
-import com.drevnitskaya.myplace.presenter.base.BasePlacesPresenter;
+import com.drevnitskaya.myplace.presenters.base.BasePlacesPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,6 @@ import io.realm.RealmResults;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
@@ -97,11 +96,6 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                             throwable.printStackTrace();
                             view.dismissProgressDialog();
                         }
-                    }, new Action0() {
-                        @Override
-                        public void call() {
-                            Log.d(getClass().getSimpleName(), "Completed!");
-                        }
                     });
         } else {
             view.showNetworkConnError();
@@ -120,12 +114,14 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
     @Override
     public void onFavoritePlaceClicked(int position) {
         final WrapperPlace wrapperPlace = getWrappedPlaces().get(position);
+        final PlaceDetails place = wrapperPlace.getPlaceDetails();
         if (wrapperPlace.isFavorite()) {
+            view.sendRemoveGeofenceBroadcast(place.getPlaceId());
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
                     PlaceDetails favoritePlace = realm.where(PlaceDetails.class)
-                            .equalTo("placeId", wrapperPlace.getPlaceDetails().getId())
+                            .equalTo("placeId", wrapperPlace.getPlaceDetails().getPlaceId())
                             .findFirst();
                     if (favoritePlace != null) {
                         favoritePlace.deleteFromRealm();
@@ -136,9 +132,12 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    realm.insertOrUpdate(wrapperPlace.getPlaceDetails());
+                    realm.insertOrUpdate(place);
                 }
             });
+            Location location = place.getGeometry().getLocation();
+            view.sendAddGeofenceBroadcast(place.getPlaceId(), location.getLatitude(), location.getLongitude());
+            view.startGeofenceMonitoring();
         }
     }
 

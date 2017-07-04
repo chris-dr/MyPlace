@@ -1,6 +1,6 @@
-package com.drevnitskaya.myplace.presenter;
+package com.drevnitskaya.myplace.presenters;
 
-import com.drevnitskaya.myplace.contract.MainContract;
+import com.drevnitskaya.myplace.contracts.MainContract;
 
 import io.realm.Realm;
 import io.realm.exceptions.RealmException;

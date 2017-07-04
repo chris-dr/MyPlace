@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
 import com.drevnitskaya.myplace.R;
-import com.drevnitskaya.myplace.contract.MainContract;
-import com.drevnitskaya.myplace.presenter.MainPresenter;
+import com.drevnitskaya.myplace.contracts.MainContract;
+import com.drevnitskaya.myplace.presenters.MainPresenter;
 import com.drevnitskaya.myplace.ui.adapters.PagesAdapter;
 import com.drevnitskaya.myplace.ui.fragments.FavoritePlacesFragment;
 import com.drevnitskaya.myplace.ui.fragments.NearbyPlacesFragment;

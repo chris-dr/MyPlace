@@ -1,8 +1,8 @@
-package com.drevnitskaya.myplace.contract;
+package com.drevnitskaya.myplace.contracts;
 
 import android.location.Location;
 
-import com.drevnitskaya.myplace.presenter.base.BasePresenter;
+import com.drevnitskaya.myplace.presenters.base.BasePresenter;
 import com.drevnitskaya.myplace.view.base.BaseView;
 import com.google.android.gms.common.api.GoogleApiClient;
 

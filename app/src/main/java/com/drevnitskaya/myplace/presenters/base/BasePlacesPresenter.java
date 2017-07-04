@@ -1,6 +1,6 @@
-package com.drevnitskaya.myplace.presenter.base;
+package com.drevnitskaya.myplace.presenters.base;
 
-import com.drevnitskaya.myplace.contract.BasePlacesContract;
+import com.drevnitskaya.myplace.contracts.BasePlacesContract;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.model.entities.WrapperPlace;
 
@@ -41,7 +41,7 @@ public abstract class BasePlacesPresenter implements BasePlacesContract.Presente
         wrappedPlaces.clear();
         for (PlaceDetails place : places) {
             long count = realm.where(PlaceDetails.class)
-                    .equalTo("placeId", place.getId())
+                    .equalTo("placeId", place.getPlaceId())
                     .count();
             if (count == 1) {
                 wrappedPlaces.add(new WrapperPlace(place, true));

@@ -1,8 +1,8 @@
-package com.drevnitskaya.myplace.presenter;
+package com.drevnitskaya.myplace.presenters;
 
-import com.drevnitskaya.myplace.contract.FavoritePlacesContract;
+import com.drevnitskaya.myplace.contracts.FavoritePlacesContract;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
-import com.drevnitskaya.myplace.presenter.base.BasePlacesPresenter;
+import com.drevnitskaya.myplace.presenters.base.BasePlacesPresenter;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -49,11 +49,12 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
     public void disableFavoritePlace(final int position) {
         final PlaceDetails place = getWrappedPlaces().get(position).getPlaceDetails();
         favoritePlaces.removeChangeListener(changeListener);
+        view.sendRemoveGeofenceBroadcast(place.getPlaceId());
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 PlaceDetails favoritePlace = favoritePlaces.where()
-                        .equalTo("placeId", place.getId())
+                        .equalTo("placeId", place.getPlaceId())
                         .findFirst();
                 if (favoritePlace != null) {
                     getWrappedPlaces().remove(position);

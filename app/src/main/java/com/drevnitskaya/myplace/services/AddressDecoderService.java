@@ -1,4 +1,4 @@
-package com.drevnitskaya.myplace.service;
+package com.drevnitskaya.myplace.services;
 
 import android.app.IntentService;
 import android.content.Intent;

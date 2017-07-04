@@ -1,5 +1,6 @@
 package com.drevnitskaya.myplace.ui.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -7,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.drevnitskaya.myplace.R;
-import com.drevnitskaya.myplace.contract.FavoritePlacesContract;
-import com.drevnitskaya.myplace.presenter.FavoritePlacesPresenter;
+import com.drevnitskaya.myplace.contracts.FavoritePlacesContract;
+import com.drevnitskaya.myplace.presenters.FavoritePlacesPresenter;
 import com.drevnitskaya.myplace.ui.fragments.base.BasePlacesFragment;
 
 

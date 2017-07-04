@@ -1,8 +1,8 @@
-package com.drevnitskaya.myplace.contract;
+package com.drevnitskaya.myplace.contracts;
 
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.model.entities.WrapperPlace;
-import com.drevnitskaya.myplace.presenter.base.BasePresenter;
+import com.drevnitskaya.myplace.presenters.base.BasePresenter;
 import com.drevnitskaya.myplace.view.base.BaseView;
 
 import java.util.List;
@@ -18,6 +18,8 @@ public class BasePlacesContract {
         void notifyPlacesChanged();
 
         void setupPlacesRecycler();
+
+        void sendRemoveGeofenceBroadcast(String placeId);
     }
 
     public interface Presenter extends BasePresenter {

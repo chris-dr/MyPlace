@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.drevnitskaya.myplace">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -31,8 +32,19 @@
         </activity>
 
         <service
-            android:name=".service.AddressDecoderService"
+            android:name=".services.AddressDecoderService"
             android:exported="false" />
+        <service
+            android:name=".services.GeofencesMonitoringService"
+            android:exported="false" />
+
+        <receiver
+            android:name=".receivers.GeofencingEventsReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.native.android.app.LocationUpdates" />
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
