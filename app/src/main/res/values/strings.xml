@@ -8,4 +8,5 @@
     <string name="progressDialog_wait">Please wait</string>
     <string name="alertDialog_titleError">Error</string>
     <string name="alertDialog_errorMsg">Please check your Network connection</string>
+    <string name="map_addressDecodingError">Not available</string>
 </resources>

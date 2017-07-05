@@ -53,16 +53,11 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                PlaceDetails favoritePlace = favoritePlaces.where()
-                        .equalTo("placeId", place.getPlaceId())
-                        .findFirst();
-                if (favoritePlace != null) {
-                    getWrappedPlaces().remove(position);
-                    getView().notifyPlaceRemoved(position);
-                    favoritePlace.deleteFromRealm();
-                }
+                place.deleteFromRealm();
             }
         });
+        getWrappedPlaces().remove(position);
+        getView().notifyPlaceRemoved(position);
         favoritePlaces.addChangeListener(changeListener);
     }
 }

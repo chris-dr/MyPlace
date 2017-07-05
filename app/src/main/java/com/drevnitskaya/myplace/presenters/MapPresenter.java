@@ -1,89 +1,118 @@
 package com.drevnitskaya.myplace.presenters;
 
-import android.location.Location;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
+import android.location.Address;
+import android.location.Geocoder;
+import android.text.TextUtils;
 
 import com.drevnitskaya.myplace.contracts.MapContract;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import rx.Observable;
-import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.functions.Func0;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
  * Created by air on 03.07.17.
  */
 
-public class MapPresenter implements MapContract.Presenter, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MapPresenter implements MapContract.Presenter {
 
     private MapContract.View view;
-    private GoogleApiClient googleApiClient;
-    private Location currentLocation;
+    private LatLng selectedLocation;
+    private Geocoder geocoder;
 
     public MapPresenter(MapContract.View view) {
         this.view = view;
     }
 
-    public void connectGoogleApiClient(int result, GoogleApiClient.Builder builder) {
-        if (result == ConnectionResult.SUCCESS) {
-            googleApiClient = builder
-                    .addApi(LocationServices.API)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
-            googleApiClient.connect();
-        } else {
-            view.loadMap();
-        }
-
+    @Override
+    public void setupGeocoder(Geocoder geocoder) {
+        this.geocoder = geocoder;
     }
 
-    @Override
-    public void getLastKnownLocation() {
-        Observable.create(new Observable.OnSubscribe<Location>() {
-            @Override
-            public void call(final Subscriber<? super Location> subscriber) {
-                if (view.isGPSEnabled()) {
-                    try {
-                        subscriber.onNext(LocationServices.FusedLocationApi.getLastLocation(googleApiClient));
-                        subscriber.onCompleted();
+    private Subscription subscription = null;
 
-                    } catch (SecurityException ex) {
-                        subscriber.onError(ex);
-                    }
-                } else {
-                    subscriber.onError(new Throwable("GPS is off!"));
-                }
+    private void decodeSelectedAddress() {
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
+
+        subscription = Observable.defer(new Func0<Observable<LatLng>>() {
+            @Override
+            public Observable<LatLng> call() {
+                return Observable.just(selectedLocation);
             }
         })
+                .flatMap(new Func1<LatLng, Observable<List<Address>>>() {
+                    @Override
+                    public Observable<List<Address>> call(LatLng latLng) {
+                        List<Address> addresses = null;
+                        try {
+                            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        return Observable.just(addresses);
+                    }
+                })
+                .filter(new Func1<List<Address>, Boolean>() {
+                    @Override
+                    public Boolean call(List<Address> addresses) {
+                        return addresses != null && !addresses.isEmpty();
+                    }
+                })
+                .flatMap(new Func1<List<Address>, Observable<Address>>() {
+                    @Override
+                    public Observable<Address> call(List<Address> addresses) {
+                        return Observable.from(addresses);
+                    }
+                })
+                .first()
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Location>() {
+                .subscribe(new Action1<Address>() {
                     @Override
-                    public void call(Location location) {
-                        currentLocation = location;
-                        view.loadMap();
+                    public void call(Address address) {
+                        List<String> addressLines = new ArrayList<>();
+                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                            addressLines.add(address.getAddressLine(i));
+                        }
+                        String selectedAddress;
+                        String fullAddress = TextUtils.join(", ", addressLines);
+                        String country = address.getCountryName();
+                        if (!TextUtils.isEmpty(fullAddress)) {
+                            selectedAddress = String.format("%s, %s", fullAddress, country);
+                        } else {
+                            selectedAddress = country;
+                        }
+                        view.setSelectedAddress(selectedAddress);
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
-                        view.loadMap();
+                        view.showDecodingError();
                     }
                 });
     }
 
-    public Location getCurrentLocation() {
-        return currentLocation;
+    public LatLng getSelectedLocation() {
+        return selectedLocation;
     }
 
+    public void manageSelectedLocation(LatLng selectedLocation) {
+        this.selectedLocation = selectedLocation;
+        decodeSelectedAddress();
+    }
 
     @Override
     public void initRealm() {
@@ -93,21 +122,5 @@ public class MapPresenter implements MapContract.Presenter, GoogleApiClient.Conn
     @Override
     public void closeRealm() {
 
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        getLastKnownLocation();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(getClass().getSimpleName(), "Google API client connection was suspended");
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(getClass().getSimpleName(), "Google API client connection was failed");
-        view.loadMap();
     }
 }

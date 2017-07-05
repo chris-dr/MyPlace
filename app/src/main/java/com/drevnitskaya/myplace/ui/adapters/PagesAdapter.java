@@ -15,7 +15,7 @@ import java.util.List;
 
 public class PagesAdapter extends FragmentPagerAdapter {
 
-    private static final int IDX_PAGE_NEARBY_PLACES = 0;
+    public static final int IDX_PAGE_NEARBY_PLACES = 0;
 
     private List<Fragment> items = new ArrayList<>();
     private List<String> titles = new ArrayList<>();

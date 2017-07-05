@@ -86,11 +86,12 @@ public class PlacesAdapter extends RecyclerView.Adapter<PlacesAdapter.NearbyPlac
 
     @Override
     public int getItemCount() {
-        if (places != null) {
-            return places.size();
-        } else {
-            return 0;
-        }
+        return places.size();
+//        if (places != null) {
+//            return places.size();
+//        } else {
+//            return 0;
+//        }
     }
 
     class NearbyPlaceHolder extends RecyclerView.ViewHolder {

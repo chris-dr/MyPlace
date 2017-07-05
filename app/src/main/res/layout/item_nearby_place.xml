@@ -17,8 +17,9 @@
         android:id="@+id/textPlaceTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="30dp"
+        android:layout_marginRight="@dimen/adapterPlaces_textRightMargin"
         android:layout_toRightOf="@+id/imagePlaceIcon"
+        android:ellipsize="end"
         android:maxLines="2"
         android:textColor="@android:color/black"
         android:textSize="16sp" />
@@ -28,30 +29,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textPlaceTitle"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginRight="@dimen/adapterPlaces_textRightMargin"
+        android:layout_marginTop="@dimen/adapterPlaces_textTopMargin"
         android:layout_toRightOf="@+id/imagePlaceIcon"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textSize="14sp" />
+        android:textSize="@dimen/adapterPlaces_descrFontSize" />
 
     <TextView
         android:id="@+id/textPlaceUrlLink"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textPlaceAddress"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginRight="@dimen/adapterPlaces_textRightMargin"
+        android:layout_marginTop="@dimen/adapterPlaces_textTopMargin"
         android:layout_toRightOf="@+id/imagePlaceIcon"
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="@color/selector_place_url_text"
-        android:textSize="14sp" />
+        android:textSize="@dimen/adapterPlaces_descrFontSize" />
 
     <TextView
         android:id="@+id/imageButtonFavorite"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
+        android:layout_width="@dimen/adapterPlaces_favoriteSize"
+        android:layout_height="@dimen/adapterPlaces_favoriteSize"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="@drawable/bg_favorite_star" />

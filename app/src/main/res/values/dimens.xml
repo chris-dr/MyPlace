@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="addressLabel_sideMargin">20dp</dimen>
+    <dimen name="adapterPlaces_textRightMargin">30dp</dimen>
+    <dimen name="adapterPlaces_favoriteSize">28dp</dimen>
+    <dimen name="adapterPlaces_textTopMargin">3dp</dimen>
+    <dimen name="adapterPlaces_descrFontSize">14sp</dimen>
 </resources>

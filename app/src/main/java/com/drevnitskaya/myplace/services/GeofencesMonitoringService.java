@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.drevnitskaya.myplace.model.entities.Location;
@@ -25,7 +26,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +57,7 @@ public class GeofencesMonitoringService extends Service {
     private PendingIntent geofencePendingIntent;
     private Realm realm;
     private RealmResults<PlaceDetails> detailsResults;
+    private List<Geofence> geofences = new ArrayList<>();
 
 
     private ManageGeofencesReceiver receiver = new ManageGeofencesReceiver();
@@ -120,8 +122,8 @@ public class GeofencesMonitoringService extends Service {
     }
 
     private void setupGeofences() {
+        geofences.clear();
         if (!detailsResults.isEmpty()) {
-            List<Geofence> geofences = new ArrayList<>();
             for (PlaceDetails place : detailsResults) {
                 Location location = place.getGeometry().getLocation();
                 geofences.add(buildGeofence(place.getPlaceId(), location.getLatitude(), location.getLongitude()));
@@ -131,23 +133,18 @@ public class GeofencesMonitoringService extends Service {
                 if (geofencingClient == null) {
                     geofencingClient = LocationServices.getGeofencingClient(this);
                 }
-                addGeofences(geofences);
+
+                addGeofences();
+
             }
         }
     }
 
-    private void addGeofences(List<Geofence> geofences) {
+    private void addGeofences() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             geofencingClient.addGeofences(
-                    getGeofencingRequest(geofences),
-                    createGeofencePendingIntent())
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
-                            Log.e(getClass().getSimpleName(), "Geofences wasn't added");
-                        }
-                    });
+                    getGeofencingRequest(),
+                    createGeofencePendingIntent());
         }
     }
 
@@ -157,14 +154,15 @@ public class GeofencesMonitoringService extends Service {
                 .setCircularRegion(latitude, longitude, GEOFENCE_RADIUS_METERS)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                .setNotificationResponsiveness(5000)
+                .setNotificationResponsiveness(15000)
                 .build();
     }
 
-    private GeofencingRequest getGeofencingRequest(List<Geofence> geofences) {
+    private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofences(geofences);
+
         return builder.build();
     }
 
@@ -173,8 +171,8 @@ public class GeofencesMonitoringService extends Service {
             Intent intent = new Intent(this, GeofencingEventsReceiver.class);
             geofencePendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE_GEOFENCE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
-
         return geofencePendingIntent;
+
     }
 
     @Override
@@ -198,17 +196,32 @@ public class GeofencesMonitoringService extends Service {
                 case ACTION_ADD_MONITORING_GEOFENCE:
                     double latitude = intent.getDoubleExtra(EXTRA_PLACE_LATITUDE, 0);
                     double longitude = intent.getDoubleExtra(EXTRA_PLACE_LONGITUDE, 0);
-                    List<Geofence> newGeofence = Collections.singletonList(buildGeofence(placeId, latitude, longitude));
-                    addGeofences(newGeofence);
+
+                    geofences.add(buildGeofence(placeId, latitude, longitude));
+                    addGeofences();
                     break;
                 case ACTION_REMOVE_MONITORING_GEOFENCE:
-                    geofencingClient.removeGeofences(Collections.singletonList(placeId)).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
-                            Log.e(getClass().getSimpleName(), "Geofence removing error");
+
+                    Geofence removedGeo = null;
+                    for (Geofence geofence : geofences) {
+                        if (TextUtils.equals(placeId, geofence.getRequestId())) {
+                            removedGeo = geofence;
                         }
-                    });
+                    }
+
+                    if (removedGeo != null) {
+                        geofences.remove(removedGeo);
+                    }
+
+                    geofencingClient.removeGeofences(Collections.singletonList(placeId))
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    if (geofences.isEmpty()) {
+                                        stopSelf();
+                                    }
+                                }
+                            });
                     break;
                 default:
                     break;

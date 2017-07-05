@@ -1,10 +1,10 @@
 package com.drevnitskaya.myplace.contracts;
 
-import android.location.Location;
+import android.location.Geocoder;
 
 import com.drevnitskaya.myplace.presenters.base.BasePresenter;
 import com.drevnitskaya.myplace.view.base.BaseView;
-import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by air on 03.07.17.
@@ -13,17 +13,18 @@ import com.google.android.gms.common.api.GoogleApiClient;
 public class MapContract {
 
     public interface View extends BaseView<MainContract.Presenter> {
-        boolean isGPSEnabled();
 
-        void loadMap();
+        void setSelectedAddress(String selectedAddress);
+
+        void showDecodingError();
     }
 
     public interface Presenter extends BasePresenter {
 
-        void getLastKnownLocation();
+        void setupGeocoder(Geocoder geocoder);
 
-        Location getCurrentLocation();
+        LatLng getSelectedLocation();
 
-        void connectGoogleApiClient(int result, GoogleApiClient.Builder builder);
+        void manageSelectedLocation(LatLng selectedLocation);
     }
 }

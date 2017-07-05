@@ -27,16 +27,18 @@
 
         <activity
             android:name=".ui.activities.MapActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait">
 
         </activity>
 
         <service
-            android:name=".services.AddressDecoderService"
-            android:exported="false" />
-        <service
             android:name=".services.GeofencesMonitoringService"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </service>
 
         <receiver
             android:name=".receivers.GeofencingEventsReceiver"

@@ -80,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         }
         switch (requestCode) {
             case REQUEST_CODE_SELECT_LOCATION:
+                TabLayout.Tab tab = tabLayout.getTabAt(PagesAdapter.IDX_PAGE_NEARBY_PLACES);
+                if (tab != null) {
+                    tab.select();
+                }
                 Bundle extras = data.getExtras();
                 LatLng selectedLoc = extras.getParcelable(MapActivity.EXTRA_SELECTED_LOCATION);
                 updateNearbyPlaces(selectedLoc);

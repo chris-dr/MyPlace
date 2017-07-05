@@ -94,12 +94,15 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
 
     public void showProgressDialog() {
         if (dialogProgress == null) {
-            dialogProgress = ProgressDialog.show(getContext(), "", getString(R.string.progressDialog_wait), true);
+            dialogProgress = new ProgressDialog(getContext());
+            dialogProgress.setMessage(getString(R.string.progressDialog_wait));
+            dialogProgress.setCancelable(false);
         }
+        dialogProgress.show();
     }
 
     public void dismissProgressDialog() {
-        if (dialogProgress != null && dialogProgress.isShowing()) {
+        if (dialogProgress != null) {
             dialogProgress.dismiss();
         }
     }
