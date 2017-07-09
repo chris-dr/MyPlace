@@ -2,6 +2,8 @@ package com.drevnitskaya.myplace.presenters;
 
 import android.text.TextUtils;
 
+import com.drevnitskaya.myplace.BuildConfig;
+import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contracts.NearbyPlacesContract;
 import com.drevnitskaya.myplace.model.api.PlacesApiRequest;
 import com.drevnitskaya.myplace.model.entities.Location;
@@ -11,13 +13,14 @@ import com.drevnitskaya.myplace.model.entities.PlaceDetailsResponse;
 import com.drevnitskaya.myplace.model.entities.PlaceResponse;
 import com.drevnitskaya.myplace.model.entities.WrapperPlace;
 import com.drevnitskaya.myplace.presenters.base.BasePlacesPresenter;
+import com.drevnitskaya.myplace.states.PlacesState;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import rx.Observable;
 import rx.Subscription;
@@ -37,17 +40,19 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
     private NearbyPlacesContract.View view;
     private List<PlaceDetails> places = new ArrayList<>();
     private Subscription subscription = null;
+    private LatLng selectedLocation = null;
 
     public NearbyPlacesPresenter(NearbyPlacesContract.View view) {
         this.view = view;
     }
 
-
-    public void nearbyPlacesRequest(String latitude, String longitude) {
+    public void nearbyPlacesRequest(LatLng selectedLoc) {
         if (view.isNetworkConnEnabled()) {
+            selectedLocation = selectedLoc;
             view.showProgressDialog();
-            subscription = PlacesApiRequest.getInstance().getApi().getNearestPlaces(TextUtils.concat(latitude, ", ",
-                    longitude).toString(), RADIUS_PLACES_SEARCHING_METRES, view.getApiKey())
+            subscription = PlacesApiRequest.getInstance().getApi().getNearestPlaces(TextUtils.concat(String.valueOf(selectedLoc.latitude), ", ",
+                    String.valueOf(selectedLoc.longitude)).toString(), RADIUS_PLACES_SEARCHING_METRES,
+                    String.valueOf(BuildConfig.GOOGLE_MAPS_API_KEY))
                     .filter(new Func1<PlaceResponse, Boolean>() {
                         @Override
                         public Boolean call(PlaceResponse searchResponse) {
@@ -63,7 +68,8 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                     .flatMap(new Func1<Place, Observable<PlaceDetailsResponse>>() {
                         @Override
                         public Observable<PlaceDetailsResponse> call(Place place) {
-                            return PlacesApiRequest.getInstance().getApi().getPlaceDetails(place.getPlaceId(), view.getApiKey());
+                            return PlacesApiRequest.getInstance().getApi().getPlaceDetails(place.getPlaceId(),
+                                    String.valueOf(BuildConfig.GOOGLE_MAPS_API_KEY));
                         }
                     })
                     .filter(new Func1<PlaceDetailsResponse, Boolean>() {
@@ -89,6 +95,11 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                             setPlaces(details);
                             wrapPlaces(details);
                             view.notifyPlacesChanged();
+                            if (places.isEmpty()) {
+                                view.setInfoMsgText(R.string.nearby_placesNotFound);
+                            } else {
+                                view.hideInfoMsg();
+                            }
                         }
                     }, new Action1<Throwable>() {
                         @Override
@@ -145,9 +156,9 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
     public void favoritePlacesQuery() {
         favoritePlaces = realm.where(PlaceDetails.class)
                 .findAll();
-        favoritePlaces.addChangeListener(new OrderedRealmCollectionChangeListener<RealmResults<PlaceDetails>>() {
+        favoritePlaces.addChangeListener(new RealmChangeListener<RealmResults<PlaceDetails>>() {
             @Override
-            public void onChange(RealmResults<PlaceDetails> results, OrderedCollectionChangeSet changeSet) {
+            public void onChange(RealmResults<PlaceDetails> results) {
                 wrapPlaces(places);
                 view.notifyPlacesChanged();
             }
@@ -159,4 +170,31 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
             subscription.unsubscribe();
         }
     }
+
+    @Override
+    public void setupInfoMsg() {
+        if (selectedLocation == null && getWrappedPlaces().isEmpty()) {
+            view.setInfoMsgText(R.string.nearby_locNotSelected);
+        } else if (selectedLocation != null && getWrappedPlaces().isEmpty()) {
+            view.setInfoMsgText(R.string.nearby_placesNotFound);
+        } else {
+            view.hideInfoMsg();
+        }
+    }
+
+    @Override
+    public NearbyPlacesContract.State getState() {
+        return new PlacesState(places, selectedLocation);
+    }
+
+    public void onRestoreState(NearbyPlacesContract.State state) {
+        if (state != null) {
+            selectedLocation = state.getSelectedLoc();
+            places = state.getPlaces();
+            wrapPlaces(places);
+            view.notifyPlacesChanged();
+            setupInfoMsg();
+        }
+    }
 }
+

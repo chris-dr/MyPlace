@@ -85,8 +85,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onStop() {
+        super.onStop();
+        presenter.unsubscribe();
     }
 
     @Override
@@ -134,23 +135,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             return;
         }
         map.setMyLocationEnabled(true);
-//        Location location = presenter.getCurrentLocation();
-//        if (location != null) {
-//            map.setLatLngBoundsForCameraTarget(new LatLngBounds(new LatLng(location.getLatitude(),
-//                    location.getLongitude()), new LatLng(location.getLatitude(),
-//                    location.getLongitude())));
-//            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),
-//                    location.getLongitude()), 8f);
-//            map.animateCamera(cameraUpdate);
-
-//            CameraPosition position = CameraPosition.builder()
-//                    .target(new LatLng(location.getLatitude(),
-//                            location.getLongitude()))
-//                    .zoom(8f)
-//                    .build();
-//            map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
-//
-//        }
     }
 
     @Override

@@ -86,15 +86,14 @@ public class MapPresenter implements MapContract.Presenter {
                         for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
                             addressLines.add(address.getAddressLine(i));
                         }
-                        String selectedAddress;
                         String fullAddress = TextUtils.join(", ", addressLines);
                         String country = address.getCountryName();
                         if (!TextUtils.isEmpty(fullAddress)) {
-                            selectedAddress = String.format("%s, %s", fullAddress, country);
+                            view.setSelectedAddress(fullAddress);
                         } else {
-                            selectedAddress = country;
+                            view.setSelectedAddress(country);
                         }
-                        view.setSelectedAddress(selectedAddress);
+
                     }
                 }, new Action1<Throwable>() {
                     @Override
@@ -112,6 +111,13 @@ public class MapPresenter implements MapContract.Presenter {
     public void manageSelectedLocation(LatLng selectedLocation) {
         this.selectedLocation = selectedLocation;
         decodeSelectedAddress();
+    }
+
+    @Override
+    public void unsubscribe() {
+        if (subscription != null) {
+            subscription.unsubscribe();
+        }
     }
 
     @Override

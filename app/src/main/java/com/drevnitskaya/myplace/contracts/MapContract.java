@@ -12,7 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class MapContract {
 
-    public interface View extends BaseView<MainContract.Presenter> {
+    public interface View extends BaseView {
 
         void setSelectedAddress(String selectedAddress);
 
@@ -26,5 +26,7 @@ public class MapContract {
         LatLng getSelectedLocation();
 
         void manageSelectedLocation(LatLng selectedLocation);
+
+        void unsubscribe();
     }
 }

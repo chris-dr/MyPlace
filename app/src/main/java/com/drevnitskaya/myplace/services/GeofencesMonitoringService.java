@@ -29,7 +29,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
@@ -213,12 +212,14 @@ public class GeofencesMonitoringService extends Service {
                         geofences.remove(removedGeo);
                     }
 
-                    geofencingClient.removeGeofences(Collections.singletonList(placeId))
+                    geofencingClient.removeGeofences(geofencePendingIntent)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     if (geofences.isEmpty()) {
                                         stopSelf();
+                                    } else {
+                                        addGeofences();
                                     }
                                 }
                             });

@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 
 import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contracts.BasePlacesContract;
@@ -28,6 +30,8 @@ public abstract class BasePlacesFragment extends Fragment implements BasePlacesC
 
     @BindView(R.id.recyclerView)
     protected RecyclerView recyclerView;
+    @BindView(R.id.textInfoMsg)
+    TextView textInfoMsg;
 
     protected PlacesAdapter adapterPlaces;
 
@@ -45,6 +49,12 @@ public abstract class BasePlacesFragment extends Fragment implements BasePlacesC
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getPresenter().setupInfoMsg();
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         getPresenter().closeRealm();
@@ -52,6 +62,17 @@ public abstract class BasePlacesFragment extends Fragment implements BasePlacesC
     }
 
     public abstract BasePlacesContract.Presenter getPresenter();
+
+    @Override
+    public void setInfoMsgText(@StringRes int msgResId) {
+        textInfoMsg.setVisibility(View.VISIBLE);
+        textInfoMsg.setText(msgResId);
+    }
+
+    @Override
+    public void hideInfoMsg() {
+        textInfoMsg.setVisibility(View.GONE);
+    }
 
     public void notifyPlacesChanged() {
         adapterPlaces.notifyDataSetChanged();

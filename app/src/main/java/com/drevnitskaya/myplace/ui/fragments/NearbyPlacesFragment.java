@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -30,6 +31,9 @@ import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.EXTRA
  */
 
 public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPlacesContract.View {
+
+    private static final String SAVED_INSTANSE_STATE_PLACES = "com.drevnitskaya.myplace.saved_instance_state_places";
+
     private NearbyPlacesContract.Presenter presenter;
     private ProgressDialog dialogProgress;
 
@@ -52,8 +56,17 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
     }
 
     @Override
-    public NearbyPlacesContract.Presenter getPresenter() {
-        return presenter;
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(SAVED_INSTANSE_STATE_PLACES)) {
+            getPresenter().onRestoreState((NearbyPlacesContract.State) savedInstanceState.getParcelable(SAVED_INSTANSE_STATE_PLACES));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        writeStateToBundle(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -68,23 +81,22 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
         getPresenter().unsubscribe();
     }
 
+    private void writeStateToBundle(Bundle outState) {
+        outState.putParcelable(SAVED_INSTANSE_STATE_PLACES, (Parcelable) getPresenter().getState());
+    }
+
     @Override
     protected void createPresenter() {
         presenter = new NearbyPlacesPresenter(this);
     }
 
     @Override
-    public String getApiKey() {
-        return getString(R.string.apiKey_googleMaps);
-    }
-
-    @Override
-    public void notifyPlaceItemChanged(int position) {
-        adapterPlaces.notifyItemChanged(position);
+    public NearbyPlacesContract.Presenter getPresenter() {
+        return presenter;
     }
 
     public void getNearbyPlaces(LatLng selectedLoc) {
-        getPresenter().nearbyPlacesRequest(String.valueOf(selectedLoc.latitude), String.valueOf(selectedLoc.longitude));
+        getPresenter().nearbyPlacesRequest(selectedLoc);
     }
 
     @Override
@@ -105,11 +117,6 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
         if (dialogProgress != null) {
             dialogProgress.dismiss();
         }
-    }
-
-    @Override
-    public void notifyPlacesRangeChanged(int start, int count) {
-        adapterPlaces.notifyItemRangeChanged(start, count);
     }
 
     @Override

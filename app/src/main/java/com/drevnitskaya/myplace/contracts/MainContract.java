@@ -9,7 +9,7 @@ import com.drevnitskaya.myplace.view.base.BaseView;
 
 public interface MainContract {
 
-    interface View extends BaseView<Presenter> {
+    interface View extends BaseView {
 
     }
 

@@ -9,4 +9,9 @@
     <string name="alertDialog_titleError">Error</string>
     <string name="alertDialog_errorMsg">Please check your Network connection</string>
     <string name="map_addressDecodingError">Not available</string>
+    <string name="nearby_locNotSelected">Location is not selected</string>
+    <string name="favorite_noFavoritePlaces">You haven\'t any favorite places</string>
+    <string name="nearby_placesNotFound">There are no any places</string>
+    <string name="notification_favoritePlaces">Favorite places are nearby!</string>
+    <string name="notification_favoritePlace">Favorite place is nearby!</string>
 </resources>

@@ -6,6 +6,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
 
@@ -25,6 +27,9 @@ import io.realm.Realm;
  */
 
 public class GeofencingEventsReceiver extends BroadcastReceiver {
+
+    public static final String EXTRA_GEOFENCE_NOTIFICATION = "com.drevnitskaya.myplace.extra_geofence_notification";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         GeofencingEvent event = GeofencingEvent.fromIntent(intent);
@@ -46,15 +51,15 @@ public class GeofencingEventsReceiver extends BroadcastReceiver {
                         names.add(placeDetails.getName());
                     }
                 }
-
-                String title;
+                @StringRes
+                int title;
                 if (geofences.size() > 1) {
-                    title = "Favorite places are nearby!";
+                    title = R.string.notification_favoritePlaces;
                 } else {
-                    title = "Favorite place is nearby!";
+                    title = R.string.notification_favoritePlace;
                 }
                 String places = TextUtils.join(", ", names);
-                showNotification(context, title, places);
+                showNotification(context, context.getString(title), places);
 
                 break;
             default:
@@ -64,9 +69,10 @@ public class GeofencingEventsReceiver extends BroadcastReceiver {
 
     public void showNotification(Context ctx, String title, String names) {
         NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        //todo open favorites set launche mode at manifest!
         Intent intent = new Intent(ctx, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(EXTRA_GEOFENCE_NOTIFICATION, true);
+        intent.putExtras(bundle);
         PendingIntent pendingNotificationIntent = PendingIntent.getActivity(ctx, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(ctx)

@@ -59,4 +59,6 @@ public abstract class BasePlacesPresenter implements BasePlacesContract.Presente
 
     public abstract void favoritePlacesQuery();
 
+    public abstract void setupInfoMsg();
+
 }

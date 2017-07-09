@@ -21,6 +21,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static com.drevnitskaya.myplace.receivers.GeofencingEventsReceiver.EXTRA_GEOFENCE_NOTIFICATION;
+
 public class MainActivity extends AppCompatActivity implements MainContract.View {
 
     private static final int REQUEST_CODE_SELECT_LOCATION = 100;
@@ -53,12 +55,27 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
 
         setupPager();
         tabLayout.setupWithViewPager(viewPager);
+
+        handleIntent(getIntent());
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         presenter.closeRealm();
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent != null && intent.hasExtra(EXTRA_GEOFENCE_NOTIFICATION)) {
+            openFavorites();
+        }
     }
 
     private void setupPager() {
@@ -80,10 +97,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         }
         switch (requestCode) {
             case REQUEST_CODE_SELECT_LOCATION:
-                TabLayout.Tab tab = tabLayout.getTabAt(PagesAdapter.IDX_PAGE_NEARBY_PLACES);
-                if (tab != null) {
-                    tab.select();
-                }
+                openNearby();
                 Bundle extras = data.getExtras();
                 LatLng selectedLoc = extras.getParcelable(MapActivity.EXTRA_SELECTED_LOCATION);
                 updateNearbyPlaces(selectedLoc);
@@ -96,5 +110,19 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
     public void updateNearbyPlaces(LatLng selectedLoc) {
         NearbyPlacesFragment fragment = adapter.getNearbyPlaceFragment();
         fragment.getNearbyPlaces(selectedLoc);
+    }
+
+    private void openNearby() {
+        TabLayout.Tab tab = tabLayout.getTabAt(PagesAdapter.IDX_PAGE_NEARBY_PLACES);
+        if (tab != null) {
+            tab.select();
+        }
+    }
+
+    private void openFavorites() {
+        TabLayout.Tab tab = tabLayout.getTabAt(PagesAdapter.IDX_PAGE_FAVORITE_PLACES);
+        if (tab != null) {
+            tab.select();
+        }
     }
 }

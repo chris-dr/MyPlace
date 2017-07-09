@@ -1,12 +1,12 @@
 package com.drevnitskaya.myplace.presenters;
 
+import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contracts.FavoritePlacesContract;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.presenters.base.BasePlacesPresenter;
 
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 
 /**
@@ -34,14 +34,12 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
         view.setupPlacesRecycler();
     }
 
-    private OrderedRealmCollectionChangeListener<RealmResults<PlaceDetails>> changeListener = new OrderedRealmCollectionChangeListener<RealmResults<PlaceDetails>>() {
+    private RealmChangeListener<RealmResults<PlaceDetails>> changeListener = new RealmChangeListener<RealmResults<PlaceDetails>>() {
         @Override
-        public void onChange(RealmResults<PlaceDetails> places, OrderedCollectionChangeSet changeSet) {
-            OrderedCollectionChangeSet.Range[] insertions = changeSet.getInsertionRanges();
-            if (insertions.length >= 1) {
-                wrapPlaces(favoritePlaces);
-                getView().notifyPlacesChanged();
-            }
+        public void onChange(RealmResults<PlaceDetails> places) {
+            wrapPlaces(favoritePlaces);
+            getView().notifyPlacesChanged();
+            setupInfoMsg();
         }
     };
 
@@ -59,5 +57,16 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
         getWrappedPlaces().remove(position);
         getView().notifyPlaceRemoved(position);
         favoritePlaces.addChangeListener(changeListener);
+        setupInfoMsg();
     }
+
+    @Override
+    public void setupInfoMsg() {
+        if (favoritePlaces == null || favoritePlaces.isEmpty()) {
+            view.setInfoMsgText(R.string.favorite_noFavoritePlaces);
+        } else {
+            view.hideInfoMsg();
+        }
+    }
+
 }

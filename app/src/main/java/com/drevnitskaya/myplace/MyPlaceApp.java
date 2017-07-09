@@ -20,7 +20,7 @@ public class MyPlaceApp extends Application {
                 .name(RealmConfiguration.DEFAULT_REALM_NAME)
                 .schemaVersion(1)
                 .deleteRealmIfMigrationNeeded()
-                .rxFactory(new RealmObservableFactory())
+//                .rxFactory(new RealmObservableFactory())
                 .build();
         Realm.setDefaultConfiguration(config);
     }
