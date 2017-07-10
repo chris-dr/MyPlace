@@ -177,11 +177,17 @@ public class GeofencesMonitoringService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(receiver);
         try {
-            realm.close();
-        } catch (RealmException ex) {
+            unregisterReceiver(receiver);
+        } catch (IllegalArgumentException ex) {
             ex.printStackTrace();
+        }
+        if (realm != null) {
+            try {
+                realm.close();
+            } catch (RealmException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

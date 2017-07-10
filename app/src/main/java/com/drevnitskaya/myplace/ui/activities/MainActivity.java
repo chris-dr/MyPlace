@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contracts.MainContract;
 import com.drevnitskaya.myplace.presenters.MainPresenter;
+import com.drevnitskaya.myplace.services.GeofencesMonitoringService;
 import com.drevnitskaya.myplace.ui.adapters.PagesAdapter;
 import com.drevnitskaya.myplace.ui.fragments.FavoritePlacesFragment;
 import com.drevnitskaya.myplace.ui.fragments.NearbyPlacesFragment;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         tabLayout.setupWithViewPager(viewPager);
 
         handleIntent(getIntent());
+        startGeofenceMonitoring();
     }
 
 
@@ -100,16 +102,16 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
                 openNearby();
                 Bundle extras = data.getExtras();
                 LatLng selectedLoc = extras.getParcelable(MapActivity.EXTRA_SELECTED_LOCATION);
-                updateNearbyPlaces(selectedLoc);
+                findNearbyPlaces(selectedLoc);
                 break;
             default:
                 break;
         }
     }
 
-    public void updateNearbyPlaces(LatLng selectedLoc) {
+    private void findNearbyPlaces(LatLng selectedLoc) {
         NearbyPlacesFragment fragment = adapter.getNearbyPlaceFragment();
-        fragment.getNearbyPlaces(selectedLoc);
+        fragment.findNearbyPlaces(selectedLoc);
     }
 
     private void openNearby() {
@@ -124,5 +126,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.View
         if (tab != null) {
             tab.select();
         }
+    }
+
+    private void startGeofenceMonitoring() {
+        Intent intent = new Intent(this, GeofencesMonitoringService.class);
+        startService(intent);
     }
 }

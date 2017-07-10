@@ -23,19 +23,6 @@ public abstract class BasePlacesPresenter implements BasePlacesContract.Presente
 
     public abstract BasePlacesContract.View getView();
 
-    public void initRealm() {
-        realm = Realm.getDefaultInstance();
-    }
-
-    public void closeRealm() {
-        try {
-            realm.removeAllChangeListeners();
-            realm.close();
-        } catch (RealmException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     @Override
     public List<WrapperPlace> wrapPlaces(List<PlaceDetails> places) {
         wrappedPlaces.clear();
@@ -60,5 +47,18 @@ public abstract class BasePlacesPresenter implements BasePlacesContract.Presente
     public abstract void favoritePlacesQuery();
 
     public abstract void setupInfoMsg();
+
+    public void initRealm() {
+        realm = Realm.getDefaultInstance();
+    }
+
+    public void closeRealm() {
+        try {
+            realm.removeAllChangeListeners();
+            realm.close();
+        } catch (RealmException ex) {
+            ex.printStackTrace();
+        }
+    }
 
 }

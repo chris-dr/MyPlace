@@ -95,11 +95,8 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                             setPlaces(details);
                             wrapPlaces(details);
                             view.notifyPlacesChanged();
-                            if (places.isEmpty()) {
-                                view.setInfoMsgText(R.string.nearby_placesNotFound);
-                            } else {
-                                view.hideInfoMsg();
-                            }
+                            setupInfoMsg();
+
                         }
                     }, new Action1<Throwable>() {
                         @Override

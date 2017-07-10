@@ -70,14 +70,9 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        dismissProgressDialog();
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
+        dismissProgressDialog();
         getPresenter().unsubscribe();
     }
 
@@ -95,7 +90,7 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
         return presenter;
     }
 
-    public void getNearbyPlaces(LatLng selectedLoc) {
+    public void findNearbyPlaces(LatLng selectedLoc) {
         getPresenter().nearbyPlacesRequest(selectedLoc);
     }
 
@@ -147,6 +142,5 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
         intent.putExtra(EXTRA_PLACE_LATITUDE, latitude);
         intent.putExtra(EXTRA_PLACE_LONGITUDE, longitude);
         getContext().sendBroadcast(intent);
-
     }
 }

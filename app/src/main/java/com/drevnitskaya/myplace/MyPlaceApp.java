@@ -4,7 +4,6 @@ import android.app.Application;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.rx.RealmObservableFactory;
 
 /**
  * Created by air on 02.07.17.
@@ -20,7 +19,6 @@ public class MyPlaceApp extends Application {
                 .name(RealmConfiguration.DEFAULT_REALM_NAME)
                 .schemaVersion(1)
                 .deleteRealmIfMigrationNeeded()
-//                .rxFactory(new RealmObservableFactory())
                 .build();
         Realm.setDefaultConfiguration(config);
     }
