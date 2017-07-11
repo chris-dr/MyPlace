@@ -91,10 +91,10 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                     .subscribe(new Action1<List<PlaceDetails>>() {
                         @Override
                         public void call(List<PlaceDetails> details) {
-                            view.dismissProgressDialog();
                             setPlaces(details);
                             wrapPlaces(details);
                             view.notifyPlacesChanged();
+                            view.dismissProgressDialog();
                             setupInfoMsg();
 
                         }
@@ -102,7 +102,10 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                         @Override
                         public void call(Throwable throwable) {
                             throwable.printStackTrace();
+                            getWrappedPlaces().clear();
+                            view.notifyPlacesChanged();
                             view.dismissProgressDialog();
+                            setupInfoMsg();
                         }
                     });
         } else {
