@@ -47,7 +47,6 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
     public void disableFavoritePlace(final int position) {
         final PlaceDetails place = getWrappedPlaces().get(position).getPlaceDetails();
         favoritePlaces.removeChangeListener(changeListener);
-        view.sendRemoveGeofenceBroadcast(place.getPlaceId());
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
@@ -57,6 +56,7 @@ public class FavoritePlacesPresenter extends BasePlacesPresenter implements Favo
         getWrappedPlaces().remove(position);
         getView().notifyPlaceRemoved(position);
         favoritePlaces.addChangeListener(changeListener);
+        view.sendRemoveGeofenceBroadcast();
         setupInfoMsg();
     }
 

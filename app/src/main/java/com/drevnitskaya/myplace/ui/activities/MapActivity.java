@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contracts.MapContract;
 import com.drevnitskaya.myplace.presenters.MapPresenter;
+import com.drevnitskaya.myplace.services.GeofencesMonitoringService;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -134,6 +135,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_CURRENT_DISPLAYING_LOCATION_ACCESS);
             return;
         }
+        startGeofenceMonitoring();
         map.setMyLocationEnabled(true);
     }
 
@@ -166,6 +168,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             setResult(Activity.RESULT_CANCELED);
         }
         finish();
+    }
+
+    private void startGeofenceMonitoring() {
+        Intent intent = new Intent(this, GeofencesMonitoringService.class);
+        startService(intent);
     }
 
 }

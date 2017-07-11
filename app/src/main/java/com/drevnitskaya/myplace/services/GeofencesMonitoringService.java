@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.drevnitskaya.myplace.model.entities.Location;
@@ -46,10 +45,6 @@ public class GeofencesMonitoringService extends Service {
 
     public static final String ACTION_ADD_MONITORING_GEOFENCE = "com.drevnitskaya.myplace.action_add_monitoring_geofence";
     public static final String ACTION_REMOVE_MONITORING_GEOFENCE = "com.drevnitskaya.myplace.action_remove_monitoring_geofence";
-
-    public static final String EXTRA_PLACE_ID = "com.drevnitskaya.myplace.extra_place_id";
-    public static final String EXTRA_PLACE_LATITUDE = "com.drevnitskaya.myplace.extra_place_latitude";
-    public static final String EXTRA_PLACE_LONGITUDE = "com.drevnitskaya.myplace.extra_place_longitude";
 
     private GoogleApiClient googleApiClient;
     private GeofencingClient geofencingClient;
@@ -196,37 +191,16 @@ public class GeofencesMonitoringService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            String placeId = intent.getStringExtra(EXTRA_PLACE_ID);
             switch (action) {
                 case ACTION_ADD_MONITORING_GEOFENCE:
-                    double latitude = intent.getDoubleExtra(EXTRA_PLACE_LATITUDE, 0);
-                    double longitude = intent.getDoubleExtra(EXTRA_PLACE_LONGITUDE, 0);
-
-                    geofences.add(buildGeofence(placeId, latitude, longitude));
-                    addGeofences();
+                    setupGeofences();
                     break;
                 case ACTION_REMOVE_MONITORING_GEOFENCE:
-
-                    Geofence removedGeo = null;
-                    for (Geofence geofence : geofences) {
-                        if (TextUtils.equals(placeId, geofence.getRequestId())) {
-                            removedGeo = geofence;
-                        }
-                    }
-
-                    if (removedGeo != null) {
-                        geofences.remove(removedGeo);
-                    }
-
                     geofencingClient.removeGeofences(geofencePendingIntent)
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    if (geofences.isEmpty()) {
-                                        stopSelf();
-                                    } else {
-                                        addGeofences();
-                                    }
+                                    setupGeofences();
                                 }
                             });
                     break;

@@ -25,7 +25,7 @@ public class NearbyPlacesContract {
 
         void startGeofenceMonitoring();
 
-        void sendAddGeofenceBroadcast(String placeId, double latitude, double longitude);
+        void sendAddGeofenceBroadcast();
     }
 
     public interface State extends BaseState {

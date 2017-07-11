@@ -6,7 +6,6 @@ import com.drevnitskaya.myplace.BuildConfig;
 import com.drevnitskaya.myplace.R;
 import com.drevnitskaya.myplace.contracts.NearbyPlacesContract;
 import com.drevnitskaya.myplace.model.api.PlacesApiRequest;
-import com.drevnitskaya.myplace.model.entities.Location;
 import com.drevnitskaya.myplace.model.entities.Place;
 import com.drevnitskaya.myplace.model.entities.PlaceDetails;
 import com.drevnitskaya.myplace.model.entities.PlaceDetailsResponse;
@@ -124,10 +123,11 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
 
     @Override
     public void onFavoritePlaceClicked(int position) {
+        view.startGeofenceMonitoring();
         final WrapperPlace wrapperPlace = getWrappedPlaces().get(position);
         final PlaceDetails place = wrapperPlace.getPlaceDetails();
         if (wrapperPlace.isFavorite()) {
-            view.sendRemoveGeofenceBroadcast(place.getPlaceId());
+            view.sendRemoveGeofenceBroadcast();
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
@@ -146,9 +146,7 @@ public class NearbyPlacesPresenter extends BasePlacesPresenter implements Nearby
                     realm.insertOrUpdate(place);
                 }
             });
-            Location location = place.getGeometry().getLocation();
-            view.sendAddGeofenceBroadcast(place.getPlaceId(), location.getLatitude(), location.getLongitude());
-            view.startGeofenceMonitoring();
+            view.sendAddGeofenceBroadcast();
         }
     }
 

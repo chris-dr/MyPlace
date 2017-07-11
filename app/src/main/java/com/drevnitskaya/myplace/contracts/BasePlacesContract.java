@@ -21,7 +21,7 @@ public class BasePlacesContract {
 
         void setupPlacesRecycler();
 
-        void sendRemoveGeofenceBroadcast(String placeId);
+        void sendRemoveGeofenceBroadcast();
 
         void setInfoMsgText(@StringRes int msgResId);
 

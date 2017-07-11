@@ -20,7 +20,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.ACTION_REMOVE_MONITORING_GEOFENCE;
-import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.EXTRA_PLACE_ID;
 
 /**
  * Created by air on 01.07.17.
@@ -108,10 +107,9 @@ public abstract class BasePlacesFragment extends Fragment implements BasePlacesC
         startActivity(intent);
     }
 
-    public void sendRemoveGeofenceBroadcast(String placeId) {
+    public void sendRemoveGeofenceBroadcast() {
         Intent intent = new Intent();
         intent.setAction(ACTION_REMOVE_MONITORING_GEOFENCE);
-        intent.putExtra(EXTRA_PLACE_ID, placeId);
         getContext().sendBroadcast(intent);
     }
 }

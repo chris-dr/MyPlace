@@ -21,9 +21,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.ACTION_ADD_MONITORING_GEOFENCE;
-import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.EXTRA_PLACE_ID;
-import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.EXTRA_PLACE_LATITUDE;
-import static com.drevnitskaya.myplace.services.GeofencesMonitoringService.EXTRA_PLACE_LONGITUDE;
 
 
 /**
@@ -135,12 +132,9 @@ public class NearbyPlacesFragment extends BasePlacesFragment implements NearbyPl
         getContext().startService(intent);
     }
 
-    public void sendAddGeofenceBroadcast(String placeId, double latitude, double longitude) {
+    public void sendAddGeofenceBroadcast() {
         Intent intent = new Intent();
         intent.setAction(ACTION_ADD_MONITORING_GEOFENCE);
-        intent.putExtra(EXTRA_PLACE_ID, placeId);
-        intent.putExtra(EXTRA_PLACE_LATITUDE, latitude);
-        intent.putExtra(EXTRA_PLACE_LONGITUDE, longitude);
         getContext().sendBroadcast(intent);
     }
 }
